@@ -115,10 +115,23 @@ end
 return function(source, player_info)
   -- Returns: Array of "signals", each signal has: { signal = { type, name, quality }, count = 42 }
 
-  local source_type = source.prototype.type
+  -- Ghost entities ("entity-ghost") expose the real prototype through
+  -- ghost_prototype, so a not-yet-built combinator/machine can be copied from
+  -- just like the built entity. Reading ghost_prototype on a non-ghost throws,
+  -- so it is only touched for ghosts.
+  local prototype = source.prototype
+  if source.type == "entity-ghost" then
+    prototype = source.ghost_prototype or prototype
+  end
+  local source_type = prototype.type
   local results = {}
   if source_type == "assembling-machine" or source_type == "furnace" then
-    results = get_recipe_signals(source, player_info)
+    -- Reading a recipe/crafting speed may not be supported on a ghost; fall back
+    -- to "nothing to copy" instead of aborting the whole copy.
+    local ok, recipe_signals = pcall(get_recipe_signals, source, player_info)
+    if ok and recipe_signals then
+      results = recipe_signals
+    end
   end
 
   local function add_signal_id(signal_id)
@@ -158,34 +171,50 @@ return function(source, player_info)
 
 
   if source_type == "constant-combinator" then
-    for _, v in pairs(source.get_or_create_control_behavior().sections) do
-      add_logistic_section(v)
+    local ok, behavior = pcall(source.get_or_create_control_behavior, source)
+    if ok and behavior then
+      for _, v in pairs(behavior.sections) do
+        add_logistic_section(v)
+      end
     end
   end
   if source_type == "transport-belt" or source_type == "underground-belt" or source_type == "splitter" then
     -- items on belt
-    local transport_lines = source.get_max_transport_line_index()
-    for i = 1, transport_lines do
-      local line = source.get_transport_line(i)
-      for _, item_with_quality_counts in pairs(line.get_contents()) do
-        add_item(item_with_quality_counts, item_with_quality_counts.count)
+    local ok, transport_lines = pcall(source.get_max_transport_line_index, source)
+    if ok and transport_lines then
+      for i = 1, transport_lines do
+        local line_ok, line = pcall(source.get_transport_line, source, i)
+        if line_ok and line then
+          for _, item_with_quality_counts in pairs(line.get_contents()) do
+            add_item(item_with_quality_counts, item_with_quality_counts.count)
+          end
+        end
       end
     end
   end
   if source_type == "inserter" then
     -- items in inserter, items in filter
-    if source.held_stack.count > 0 then
-      add_item_stack(source.held_stack)
+    local ok_stack, held_stack = pcall(function() return source.held_stack end)
+    if ok_stack and held_stack and held_stack.count > 0 then
+      add_item_stack(held_stack)
     end
 
-    local filter_slot_count = source.filter_slot_count
-    for i = 1, filter_slot_count do
-      add_item_filter(source.get_filter(i))
+    local ok_count, filter_slot_count = pcall(function() return source.filter_slot_count end)
+    if ok_count and filter_slot_count then
+      for i = 1, filter_slot_count do
+        local filter_ok, filter = pcall(source.get_filter, source, i)
+        if filter_ok then
+          add_item_filter(filter)
+        end
+      end
     end
   end
 
   -- circuit condition
-  local source_behavior = source.get_control_behavior()
+  local behavior_ok, source_behavior = pcall(source.get_control_behavior, source)
+  if not behavior_ok then
+    source_behavior = nil
+  end
   if source_behavior then
     if circuit_condition_types[source.type] then
      -- add_signal_id(source_behavior.circuit_condition.condition.first_signal)
@@ -193,22 +222,27 @@ return function(source, player_info)
   end
 
   if source_type == "storage-tank" or source_type == "pipe" or source_type == "pipe-to-ground" then
-    local fluids = source.get_fluid_contents()
-    for fluid, value in pairs(fluids) do
-      add_fluid(fluid, value)
+    local ok, fluids = pcall(source.get_fluid_contents, source)
+    if ok and fluids then
+      for fluid, value in pairs(fluids) do
+        add_fluid(fluid, value)
+      end
     end
   end
   if source_type == "container" then
-    local items = source.get_inventory(defines.inventory.chest).get_contents()
-    for _, value in pairs(items) do
-      table.insert(results, {
-        signal = {
-          type = "item",
-          name = value.name,
-          quality = value.quality
-        },
-        count = value.count
-      })
+    local inv_ok, inventory = pcall(source.get_inventory, source, defines.inventory.chest)
+    if inv_ok and inventory then
+      local items = inventory.get_contents()
+      for _, value in pairs(items) do
+        table.insert(results, {
+          signal = {
+            type = "item",
+            name = value.name,
+            quality = value.quality
+          },
+          count = value.count
+        })
+      end
     end
   end
   results = tables.filter(results, function(v) return v.signal.name ~= nil end, true)

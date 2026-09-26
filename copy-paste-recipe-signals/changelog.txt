@@ -1,4 +1,64 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.9.0
+Date: 2026-09-27
+  Features:
+    - When copying several item signals into a requester chest, a picker now lets you paste either
+      ALL item signals at once or just one specific item (chosen by its in-game icon)
+    - Picking a single item replaces the chest's requests with just that item; the ALL button pastes
+      every item signal as before
+    - New per-player setting "Ask which items to paste" to turn the picker off and always paste all items
+  Bugfixes:
+    - Copy/paste now also works with ghost (not-yet-built) entities such as combinators: ghosts are
+      resolved to the entity they will become, so their signals can be copied and pasted like the
+      built entity. Unsupported ghost operations degrade gracefully instead of failing (a ghost
+      requester chest cannot take item requests yet)
+---------------------------------------------------------------------------------------------------
+Version: 1.8.6
+Date: 2026-09-26
+  Changes:
+    - Pasting item signals to a requester chest now always requests one full stack of each item (instead of the copied amount)
+---------------------------------------------------------------------------------------------------
+Version: 1.8.5
+Date: 2026-09-26
+  Bugfixes:
+    - Fixed crash when showing an informational popup after a paste (LuaEntity has localised_name,
+      not local_name, and there is no localization global in Factorio 2.0)
+    - Fixed pasting to requester chests: use get_requester_point() defensively and handle the manual
+      logistic section correctly (filters_count is the section capacity)
+    - Buffer chests now accept pasted item requests too; provider/storage chests still show a
+      helpful popup instead of crashing
+    - Modded requester chests (e.g. Bots Bots Bots' Simple Requester Chest) are now valid paste
+      targets (logistic containers get additional_pastable_entities, deduplicated)
+    - Fixed decider combinator paste for Factorio 2.0 (per-index conditions/outputs API)
+    - Circuit-condition paste no longer writes the enable flag to control behaviors that lack it
+    - Unexpected copy/paste errors are now logged and shown as flying text instead of crashing the game
+---------------------------------------------------------------------------------------------------
+Version: 1.8.4
+Date: 2026-09-26
+  Bugfix:
+    - Pasting item signals now works on modded requester chests (e.g. Bots Bots Bots' Simple Requester Chest), not just the vanilla requester chest: all requester-mode logistic containers are now accepted paste targets
+---------------------------------------------------------------------------------------------------
+Version: 1.8.3
+Date: 2026-09-25
+  Bugfix:
+    - Fixed a crash on mod load ("First argument must be a table or LuaEventType"): the player-leave event name was wrong for Factorio 2.0; now uses defines.events.on_player_left_game
+---------------------------------------------------------------------------------------------------
+Version: 1.8.2
+Date: 2026-09-25
+  Bugfix:
+    - Fixed a crash on mod load ("First argument must be a table or LuaEventType"): popup.lua registered a non-existent event (defines.events.on_player_left); now uses on_player_deleted
+---------------------------------------------------------------------------------------------------
+Version: 1.8.1
+Date: 2026-09-25
+  Bugfix:
+    - Fixed a crash on mod load ("attempt to index global 'flib_table' (a nil value)"): mytable.lua was missing its module declaration and return statement
+---------------------------------------------------------------------------------------------------
+Version: 1.8.0
+Date: 2026-09-25
+  Features:
+    - Allow pasting to a requester chest: all copied item signals are added as filters (up to 8), each using the copied signal's count when it is positive, otherwise one full stack of the item
+    - Show a popup explaining what can be copied and pasted when there are no signals to copy or when the paste target is not supported
+---------------------------------------------------------------------------------------------------
 Version: 1.7.0
 Date: 2025-04-12
   Features:
