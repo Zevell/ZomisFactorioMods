@@ -1,59 +1,61 @@
-# Factorio Mods
+# Factorio Mods — Zevell's fork
 
-Several mods for the Factorio game, each mod is described below.
+This is a personal fork of **[Zomis/FactorioMods](https://github.com/Zomis/FactorioMods)**, the
+Factorio mod collection created and maintained by **Zomis**. All mods, their code and their
+copyright are his original work; this fork exists so I can develop, test and package changes
+locally — mainly to `copy-paste-recipe-signals` — and offer them back as pull requests.
 
-## Contributing
+| | |
+|---|---|
+| **Upstream (original author)** | [Zomis/FactorioMods](https://github.com/Zomis/FactorioMods) — by [Zomis](https://github.com/Zomis) |
+| **This fork** | [Zevell/ZomisFactorioMods](https://github.com/Zevell/ZomisFactorioMods) |
+| **License** | MIT — see [LICENSE](LICENSE). Unchanged from upstream; copyright remains with the original author. |
 
-- Pull requests are welcome!
-- There's no need to update the version number, my Jenkinsfile takes care of that automatically when I release a new mod.
+The fork contains the upstream mod collection unchanged, plus the changes listed below.
 
-# List of mods (non-exhaustive)
+## Differences from upstream
 
-## [Visual Signals](https://mods.factorio.com/mods/zomis/visual-signals) (GUI Signal Display)
+Changes present in this fork that are **not** in
+[Zomis/FactorioMods](https://github.com/Zomis/FactorioMods). This list is kept up to date as the
+fork evolves; each mod's own `changelog.txt` holds the full release notes.
 
-Allows players to keep track of circuit networks in the GUI at any time.
+### `copy-paste-recipe-signals` — 1.9.0 (2026-09-27)
 
-Originally based on [CircuitsUI by Fumelgo](https://mods.factorio.com/mods/Fumelgo/CircuitsUI) but massively modified to become a mod on its own.
+**Features**
 
-![Factorio screenshot of Visual Signals](https://mods-data.factorio.com/pub_data/media_files/vjrlqhNDv4QS.png)
+- **Paste picker.** When two or more item signals are copied and pasted onto a requester or buffer
+  chest, a small GUI appears with an **ALL** button (the *Everything* wildcard signal) and one
+  button per item, using the in-game item icons. Choosing a single item requests only that item;
+  **ALL** pastes every copied item signal. Pasting a single signal is unchanged, and the picker can
+  be turned off with the new per-player setting *"Ask which items to paste"*.
+- **Ghost support.** Signals can be copied from, and pasted onto, ghost (not-yet-built) entities
+  such as combinators. A ghost requester chest cannot accept item requests in Factorio 2.0 — that
+  case degrades to a normal "nothing was pasted" message instead of failing.
 
-## [Lamp Placer](https://mods.factorio.com/mods/zomis/lamp-placer)
+**Bug fixes**
 
-Lets the player select an area with a Lamp Placer tool to give orders to robots to place lamps in the area.
+- Pasting item signals to requester chests crashed in Factorio 2.0; the requester point and manual
+  logistic section are now handled defensively.
+- Modded requester chests (e.g. *Bots Bots Bots*' Simple Requester Chest) are valid paste targets,
+  not just the vanilla chest.
+- Buffer chests accept pasted item requests; provider and storage chests show a helpful popup
+  instead of crashing.
+- Decider combinator paste fixed for Factorio 2.0 (per-index conditions/outputs API).
+- Circuit-condition paste no longer writes the enable flag to control behaviors that lack it.
+- Informational popups no longer crash (`LuaEntity` has `localised_name`, and Factorio 2.0 has no
+  `localization` global).
+- Unexpected copy/paste errors are logged and shown as flying text instead of crashing the game.
+- Requester chests always request one full stack of each item.
 
-![Factorio screenshot of Lamp Placer](https://mods-data.factorio.com/pub_data/media_files/XolK5mysVxah.png)
+### `foofle`
 
-## [What is Missing (WiM)](https://mods.factorio.com/mods/zomis/what-is-missing)
+- `mytable.lua` was missing its Flib module wrapper (`local flib_table = {}` + `return
+  flib_table`); the same fix already applied to `copy-paste-recipe-signals` is applied here.
 
-The GUI will show when you place something on the map.
+## Contributing upstream
 
-No need to run around checking why you are not producing so much as you want to. This mod will tell you about all things that are causing you to not produce as much research, build a rocket, or any items of your choice.
-
-![Factorio screenshot of What is Missing](https://mods-data.factorio.com/pub_data/media_files/ZYuB7woBjvzO.png)
-
-## [Advanced Combinator](https://mods.factorio.com/mod/advanced-combinator)
-
-Instead of using one combinator to get the minimum value of a network, one to get the game time, then some to do some other arithmetic with it, I decided to make one combinator that can do it all!
-
-This mod is using (somewhat) clean code and good coding practices which makes it easy to add more features too.
-
-Although it may be difficult to use at first, it is very powerful and capable of lots of things!
-
-![Factorio screenshot of Advanced Combinator](https://mods-data.factorio.com/assets/102511eb9c85063d051c0492bfc17b2c23994650.png)
-
-## [Timeline](https://mods.factorio.com/mod/timeline)
-
-Track your efficiency and improve yourself in becoming faster. Ideal for those who try to speed-run the game.
-
-This mod saves the timestamp of some key events:
-- Research finished
-- Rockets launched and their content
-- Every power of 10 of items produced (1 items produced, 10, 100, 1000, etc.)
-- Player died
-
-Other mods may add their own mark by invoking a method that takes the force, a name, a parameter, and a numeric value:
-remote.call("timeline", "add_timeline_mark", force, "some-name", "some-parameter", 42)
-
-Supports export to a HTML file so that you can easily compare your performance between different games.
-
-![Factorio screenshot of Timeline](https://mods-data.factorio.com/assets/ee2cc0396664d16c43bcb9869ef60c45aa070589.png)
+- Pull requests are welcome — to [Zomis/FactorioMods](https://github.com/Zomis/FactorioMods).
+- There is no need to bump the version number in a pull request; upstream's `Jenkinsfile` takes
+  care of that when a mod is released.
+- When opening a pull request from this fork, branch from `upstream/main` (rather than this fork's
+  `main`) so the fork-specific changes to this README are not dragged into the pull request.
