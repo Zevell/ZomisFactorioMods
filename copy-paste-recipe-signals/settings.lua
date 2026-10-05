@@ -83,3 +83,12 @@ data:extend({
         default_value = true
     }
 })
+data:extend({
+    {
+        type = "bool-setting",
+        name = "copy-paste-recipe-signals-paste-picker",
+        setting_type = "runtime-per-user",
+        order = "g",
+        default_value = true
+    }
+})
