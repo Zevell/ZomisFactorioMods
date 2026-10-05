@@ -1,11 +1,11 @@
 {
   "name": "copy-paste-recipe-signals",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "title": "Copy-Paste Recipe Signals",
   "author": "Zomis",
   "contact": "zomis2k@hotmail.com",
   "homepage": "https://github.com/Zomis/FactorioMods",
   "factorio_version": "2.1",
   "dependencies": ["base >= 1.1", "? LTN_Combinator_Modernized", "flib >= 0.12.3"],
-  "description": "Copying settings from an Assembling Machine to a combinator will paste one or more signals describing the recipe. On some entities it can be pasted again to switch the signal used"
+  "description": "Copying settings from an Assembling Machine to a combinator will paste one or more signals describing the recipe. On some entities it can be pasted again to switch the signal used. Copied item signals can also be pasted to a requester chest to fill its filters; when several items are copied a picker lets you paste all of them or just one. Works with ghosts (not-yet-built entities) too"
 }

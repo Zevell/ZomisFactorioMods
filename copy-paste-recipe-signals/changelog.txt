@@ -1,4 +1,24 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.8.0
+Date: 2026-10-06
+  Features:
+    - Paste copied item signals into a requester or buffer chest to fill its requests. Any modded
+      requester chest works too; each item is requested up to ten stacks (1000 iron plates)
+    - When several item signals are copied, a picker lets you paste all of them or just one specific
+      item. It can be turned off with the new per-player setting "Ask which items to paste"
+    - Ghosts: signals can be copied from, and pasted onto, not-yet-built entities such as combinators
+  Bugfixes:
+    - Fixed crash on load: mytable.lua was missing its Flib module wrapper
+    - Fixed crash on load: two events were registered under names that do not exist in Factorio 2.0
+    - Fixed crash when showing an informational popup after a paste
+    - Fixed pasting to requester chests: the requester point and manual logistic section are handled
+      defensively, buffer chests accept requests, and provider/storage chests show a message instead
+      of crashing
+    - Fixed decider combinator paste for Factorio 2.0 (per-index conditions and outputs)
+    - Circuit-condition paste no longer writes the enable flag to control behaviors that lack it
+    - Copying from a ghost constant combinator now reads every slot, not just the first
+    - Unexpected copy/paste errors are logged and shown as flying text instead of crashing the game
+---------------------------------------------------------------------------------------------------
 Version: 1.7.0
 Date: 2025-04-12
   Features:
