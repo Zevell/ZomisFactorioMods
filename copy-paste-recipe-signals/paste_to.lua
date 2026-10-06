@@ -156,6 +156,21 @@ local function paste_to_logisitic_section(section, signals)
     return nil
 end
 
+-- How much of one item to request. The "request stacks" setting wins when it is
+-- above zero; otherwise the amount that was copied is used, which is what the
+-- ingredient/product multipliers and the request-chest setting already decide.
+local function request_amount(signal, player_info)
+    local stacks = player_info.settings["copy-paste-recipe-request-stacks"].value
+    if stacks > 0 then
+        local item = prototypes.item[signal.signal.name]
+        return math.max(1, (item and item.stack_size or 1) * stacks)
+    end
+    -- A request slot wants a positive whole amount, while a copied ingredient
+    -- count is negative by default (see the ingredient multiplier setting), so
+    -- the size of the copied count is requested.
+    return math.max(1, math.floor(math.abs(signal.count or 0)))
+end
+
 -- A requester or buffer chest stores its requests in the manual section of its
 -- requester logistic point. Any logistic container that has such a point can be
 -- pasted into, which is what makes modded requester chests work without naming
@@ -178,16 +193,13 @@ local function paste_to_requester(destination, signals, player_info)
         return
     end
 
-    -- A request slot wants a positive whole amount, while a copied ingredient
-    -- count is negative by default (see the ingredient multiplier setting), so
-    -- the size of the copied count is requested.
     local requests = {}
     for _, signal in ipairs(signals) do
         local count = signal.count or 0
         if signal.signal.type == "item" and prototypes.item[signal.signal.name] and count ~= 0 then
             table.insert(requests, {
                 signal = signal.signal,
-                count = math.max(1, math.floor(math.abs(count)))
+                count = request_amount(signal, player_info)
             })
         end
     end
